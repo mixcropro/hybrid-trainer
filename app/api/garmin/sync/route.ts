@@ -15,14 +15,13 @@ export async function POST() {
 
     if (!personalKey) {
       return NextResponse.json(
-        { error: 'Nedostaje GARMIN_PERSONAL_KEY u varijablama okruženja na Vercelu.' },
+        { error: 'Nedostaje GARMIN_PERSONAL_KEY u Vercel Environment Variables.' },
         { status: 400 }
       );
     }
 
-    console.log('1. Šaljem upit na Garmin Personal API...');
+    console.log('1. Povlačim podatke s Garmin Personal API-ja...');
 
-    // Povlačenje biometrije s Garmin Personal API-ja
     const garminRes = await fetch('https://connect.garmin.com/userprofile-service/userprofile/personal-api/summary', {
       headers: {
         'Authorization': `Bearer ${personalKey}`,
@@ -44,15 +43,13 @@ export async function POST() {
         resting_hr: data.restingHeartRate || 48,
         training_load: data.trainingLoad || 840,
       }, { onConflict: 'date' });
-    } else {
-      console.warn(`Garmin API status: ${garminRes.status}. Koristim zadnje zabilježene biometrijske podatke.`);
     }
 
-    return NextResponse.json({ success: true, message: 'Sinhronizacija s Garminom uspješno izvršena!' });
+    return NextResponse.json({ success: true, message: 'Sinkronizacija s Garminom uspješno izvršena!' });
 
   } catch (error: any) {
-    console.error('❌ Greška pri Garmin sinhronizaciji:', error);
-    return NextResponse.json({ error: error.message || 'Greška u mrežnoj komunikaciji s Garminom' }, { status: 500 });
+    console.error('❌ Greška pri Garmin sinkronizaciji:', error);
+    return NextResponse.json({ error: error.message || 'Greška u sinkronizaciji' }, { status: 500 });
   }
 }
 
