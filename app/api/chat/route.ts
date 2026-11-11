@@ -54,10 +54,14 @@ ${memoryText}
 
 [PARAMETRI SPORTAŠA & STATISTIKA]
 - FTP: ${profile?.ftp_watts || 250}W | LTHR: ${profile?.lthr_bpm || 168}bpm
+- Max HR: ${profile?.max_hr || 188} | Max tjedno trčanje: ${profile?.max_weekly_running_km || 50}km
+- CSS Swim Tempo: ${profile?.css_swim_tempo || '1:45'} | Proteini: ${profile?.daily_protein_target_g || 180}g/dan
 - Akutni umor (ATL 7d): ${atl} TSS/dan | Fitness (CTL 14d): ${ctl} TSS/dan | Forma (TSB): ${tsb}
 - HRV Status: ${garminData?.hrv_status || 'Balanced'} | San: ${garminData?.sleep_score || 80}/100
+- Aktivne ozljede: ${profile?.active_injuries || 'Nema'}
 
-Odgovaraj izravno, tehnički precizno, uvažavajući sve prošle dogovore i bilješke.
+Odgovaraj izravno, tehnički precizno, uvažavajući sve prošle dogovore, bilješke i fiziološka ograničenja.
+Zadrži fokus na triatlonu uz uključene dane za trening snage: ${profile?.preferred_gym_days?.join(', ') || 'Ponedjeljak, Srijeda, Petak'}.
 `;
 
     // 5. Priprema razgovora za Gemini (Sistemski prompt + Povijest + Nova poruka)
