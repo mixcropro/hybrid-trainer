@@ -25,8 +25,10 @@ export default function Home() {
     ftp_watts: 250,
     lthr_bpm: 168,
     max_hr: 188,
-    squat_1rm_kg: 120,
-    deadlift_1rm_kg: 140,
+    preferred_gym_days: ['Ponedjeljak', 'Srijeda', 'Petak'],
+    max_weekly_running_km: 50,
+    css_swim_tempo: '1:45',
+    daily_protein_target_g: 180,
     active_injuries: 'Nema aktivnih ozljeda.',
     target_events: 'Ironman 70.3 / Polumaraton',
   });
@@ -365,8 +367,8 @@ export default function Home() {
           </section>
 
           <section className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-            <h4 className="font-semibold text-white text-xs">Fiziološki Pragovi (Triatlon)</h4>
-            <div className="grid grid-cols-3 gap-3">
+            <h4 className="font-semibold text-white text-xs">Triatlon & Trening Postavke</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div>
                 <label className="text-slate-400 block mb-1">FTP Bicikl (W)</label>
                 <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.ftp_watts} onChange={(e) => setProfile({...profile, ftp_watts: Number(e.target.value)})} />
@@ -379,26 +381,28 @@ export default function Home() {
                 <label className="text-slate-400 block mb-1">Max HR (bpm)</label>
                 <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.max_hr} onChange={(e) => setProfile({...profile, max_hr: Number(e.target.value)})} />
               </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Max Trčanje (km/tjedan)</label>
+                <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.max_weekly_running_km} onChange={(e) => setProfile({...profile, max_weekly_running_km: Number(e.target.value)})} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-slate-400 block mb-1">CSS Swim Tempo (min:sec)</label>
+                <input type="text" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.css_swim_tempo} onChange={(e) => setProfile({...profile, css_swim_tempo: e.target.value})} />
+              </div>
+              <div>
+                <label className="text-slate-400 block mb-1">Protein Target (g/dan)</label>
+                <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.daily_protein_target_g} onChange={(e) => setProfile({...profile, daily_protein_target_g: Number(e.target.value)})} />
+              </div>
             </div>
           </section>
 
           <section className="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-            <h4 className="font-semibold text-white text-xs">Zdravlje & Teretana</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <label className="text-slate-400 block mb-1">Aktivne ozljede</label>
-                <textarea rows={2} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white resize-none" value={profile.active_injuries} onChange={(e) => setProfile({...profile, active_injuries: e.target.value})} />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-slate-400 block mb-1">Čučanj 1RM (kg)</label>
-                  <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.squat_1rm_kg} onChange={(e) => setProfile({...profile, squat_1rm_kg: Number(e.target.value)})} />
-                </div>
-                <div>
-                  <label className="text-slate-400 block mb-1">Mrtvo Dizanje 1RM (kg)</label>
-                  <input type="number" className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white" value={profile.deadlift_1rm_kg} onChange={(e) => setProfile({...profile, deadlift_1rm_kg: Number(e.target.value)})} />
-                </div>
-              </div>
+            <h4 className="font-semibold text-white text-xs">Zdravlje & Preferencije</h4>
+            <div>
+              <label className="text-slate-400 block mb-1">Aktivne ozljede</label>
+              <textarea rows={2} className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-white resize-none" value={profile.active_injuries} onChange={(e) => setProfile({...profile, active_injuries: e.target.value})} />
             </div>
           </section>
 

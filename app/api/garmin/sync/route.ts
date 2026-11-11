@@ -45,7 +45,42 @@ export async function POST() {
       }, { onConflict: 'date' });
     }
 
-    return NextResponse.json({ success: true, message: 'Sinkronizacija s Garminom uspješno izvršena!' });
+    // 2. Povlačenje nedavnih aktivnosti
+    console.log('2. Povlačenje aktivnosti s Garmin Personal API-ja...');
+    const activitiesRes = await fetch('https://connect.garmin.com/activity-service/activity/activities?limit=10', {
+      headers: {
+        'Authorization': `Bearer ${personalKey}`,
+        'Accept': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    if (activitiesRes.ok) {
+      const activities = await activitiesRes.json();
+      console.log('Activities found:', activities.length);
+
+      for (const act of activities) {
+        // Garmin Personal API structure for activities might vary from Webhook structure
+        // Often it's 'activityId' or 'id'
+        const activityId = act.activityId || act.id;
+
+        await supabase.from('activities').upsert({
+          garmin_activity_id: activityId.toString(),
+          date: act.startTimeLocal ? act.startTimeLocal.split(' ')[0] : new Date().toISOString().split('T')[0],
+          title: act.activityName,
+          sport_type: act.activityType?.typeKey || 'generic',
+          duration_minutes: Math.round((act.duration || 0) / 60),
+          distance_km: act.distance ? (act.distance / 1000).toFixed(2) : 0,
+          avg_power_watts: act.averagePower || 0,
+          avg_hr: act.averageHR || 0,
+          tss: act.tss || 0,
+        }, { onConflict: 'garmin_activity_id' });
+      }
+    } else {
+      const errorText = await activitiesRes.text();
+      console.error('Garmin API returned error:', activitiesRes.status, errorText);
+    }
+    return NextResponse.json({ success: true, message: 'Sinkronizacija biometrije i aktivnosti izvršena!' });
 
   } catch (error: any) {
     console.error('❌ Greška pri Garmin sinkronizaciji:', error);
