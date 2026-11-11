@@ -47,27 +47,32 @@ export async function POST() {
 
     // 2. Povlačenje nedavnih aktivnosti
     console.log('2. Povlačenje aktivnosti s Garmin Personal API-ja...');
-    const activitiesRes = await fetch('https://connect.garmin.com/activity-service/activity/activities?limit=10', {
+    // Ažurirani endpoint za aktivnosti (koristimo 'summary' ili 'activities' ovisno o Garmin dokumentaciji)
+    // Napomena: Garmin Personal API često zahtijeva specifične parametre datuma
+    const activitiesRes = await fetch('https://connect.garmin.com/activity-service/activity/activities?limit=20', {
       headers: {
         'Authorization': `Bearer ${personalKey}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0' // Dodano jer Garmin ponekad blokira prazan UA
       },
       cache: 'no-store'
     });
 
     if (activitiesRes.ok) {
       const activities = await activitiesRes.json();
-      console.log('Activities found:', activities.length);
+      console.log('Activities response type:', typeof activities);
+      console.log('Activities content:', JSON.stringify(activities).substring(0, 500));
 
-      for (const act of activities) {
-        // Garmin Personal API structure for activities might vary from Webhook structure
-        // Often it's 'activityId' or 'id'
+      // Garmin često vraća polje unutar objekta ili direktno niz
+      const activityList = Array.isArray(activities) ? activities : (activities.activities || []);
+      for (const act of activityList) {
         const activityId = act.activityId || act.id;
+        if (!activityId) continue;
 
         await supabase.from('activities').upsert({
           garmin_activity_id: activityId.toString(),
           date: act.startTimeLocal ? act.startTimeLocal.split(' ')[0] : new Date().toISOString().split('T')[0],
-          title: act.activityName,
+          title: act.activityName || 'Nepoznat trening',
           sport_type: act.activityType?.typeKey || 'generic',
           duration_minutes: Math.round((act.duration || 0) / 60),
           distance_km: act.distance ? (act.distance / 1000).toFixed(2) : 0,
@@ -78,7 +83,7 @@ export async function POST() {
       }
     } else {
       const errorText = await activitiesRes.text();
-      console.error('Garmin API returned error:', activitiesRes.status, errorText);
+      console.error('Garmin API returned error for activities:', activitiesRes.status, errorText);
     }
     return NextResponse.json({ success: true, message: 'Sinkronizacija biometrije i aktivnosti izvršena!' });
 

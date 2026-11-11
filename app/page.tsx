@@ -34,6 +34,8 @@ export default function Home() {
   });
   const [profileSaved, setProfileSaved] = useState(false);
 
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   const fetchData = async () => {
     try {
       const res = await fetch('/api/workouts');
@@ -47,6 +49,23 @@ export default function Home() {
     } catch (e) {
       console.error('Greška pri dohvaćanju podataka:', e);
     }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (!confirm(`Jesi li siguran da želiš obrisati ${selectedIds.length} odabranih aktivnosti?`)) return;
+    try {
+      for (const id of selectedIds) {
+        await fetch(`/api/workouts?id=${id}`, { method: 'DELETE' });
+      }
+      setSelectedIds([]);
+      fetchData();
+    } catch (e) {
+      console.error('Greška pri brisanju:', e);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
   useEffect(() => {
@@ -256,7 +275,7 @@ export default function Home() {
       {activeTab === 'history' && (
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-3 rounded-xl">
-            <span className="text-xs font-semibold text-slate-400">Filtriraj po sportu:</span>
+            <span className="text-xs font-semibold text-slate-400">Filtriraj:</span>
             <div className="flex flex-wrap gap-1.5 text-xs">
               {['all', 'run', 'bike', 'swim', 'strength', 'walk'].map((sport) => (
                 <button
@@ -270,6 +289,14 @@ export default function Home() {
                 </button>
               ))}
             </div>
+            {selectedIds.length > 0 && (
+              <button 
+                onClick={handleDeleteSelected}
+                className="text-xs text-red-500 font-semibold hover:text-red-400 px-3 py-1 border border-red-900/50 rounded-lg"
+              >
+                Obriši odabrano ({selectedIds.length})
+              </button>
+            )}
           </div>
 
           <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
@@ -285,8 +312,14 @@ export default function Home() {
                 </div>
               ) : (
                 filteredActivities.map((act) => (
-                  <div key={act.id} className="p-4 hover:bg-slate-800/50 transition-colors flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                    <div className="space-y-1">
+                  <div key={act.id} className="p-4 hover:bg-slate-800/50 transition-colors flex items-center gap-4">
+                    <input 
+                      type="checkbox" 
+                      checked={selectedIds.includes(act.id)}
+                      onChange={() => toggleSelect(act.id)}
+                      className="accent-blue-600"
+                    />
+                    <div className="flex-1 space-y-1">
                       <div className="flex items-center space-x-2">
                         <span className="font-semibold text-sm text-slate-100">{act.title}</span>
                         <span className="px-2 py-0.5 bg-slate-800 text-[10px] text-slate-300 rounded font-mono uppercase">
